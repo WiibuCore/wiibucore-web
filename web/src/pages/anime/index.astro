@@ -1,0 +1,14 @@
+---
+import LayoutAnime from "@/src/layouts/LayoutAnime.astro";
+import CarouselBanner from "@/src/components/CarouselBanner.svelte";
+import Popular from "@/src/components/PopulerAnime.svelte";
+---
+
+<LayoutAnime title="wiibucore | animelist">
+    <section class="w-full container mx-auto mt-5">
+        <div class="flex justify-center gap-5">
+            <CarouselBanner client:only="svelte" />
+            <Popular client:only="svelte" />
+        </div>
+    </section>
+</LayoutAnime>
