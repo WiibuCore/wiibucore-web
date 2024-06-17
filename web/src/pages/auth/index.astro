@@ -1,0 +1,10 @@
+---
+import { ModalAuth } from "@/src/components/ModalAuth";
+import LayoutAnime from "@/src/layouts/LayoutAnime.astro";
+---
+
+<LayoutAnime>
+    <div class="flex justify-center md:mt-20">
+        <ModalAuth client:only="react" />
+    </div>
+</LayoutAnime>
