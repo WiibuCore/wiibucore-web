@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { onMount } from "svelte";
+    import { onMount, onDestroy } from "svelte";
     import {
         animeSeasonNow,
         loading,
@@ -7,7 +7,8 @@
         fetchAnimeNow,
     } from "../hooks/animeStore";
 
-    let currentIndex = 2;
+    let currentIndex = 0;
+    let intervalId: number | undefined
     function next() {
         currentIndex = (currentIndex + 1) % $animeSeasonNow.length;
     }
@@ -17,6 +18,10 @@
     }
     onMount(() => {
         fetchAnimeNow();
+        intervalId = setInterval(next, 2000);
+    });
+    onDestroy(() => {
+        clearInterval(intervalId);
     });
 </script>
 
