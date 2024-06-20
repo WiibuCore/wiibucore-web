@@ -4,7 +4,7 @@
         animePopuler,
         loading,
         error,
-        fetchAnimeData,
+        fetchAnimeTop,
     } from "../hooks/animeStore";
 
     let popularAnime: any[] = [];
@@ -13,7 +13,7 @@
     });
 
     onMount(() => {
-        fetchAnimeData();
+        fetchAnimeTop(4);
     });
     
 </script>

@@ -1,5 +1,6 @@
 ---
 import LayoutAnime from "@/src/layouts/LayoutAnime.astro";
+import CardListAnime from "@/src/components/CardListAnime.svelte";
 import CarouselBanner from "@/src/components/CarouselBanner.svelte";
 import Popular from "@/src/components/PopulerAnime.svelte";
 ---
@@ -9,6 +10,14 @@ import Popular from "@/src/components/PopulerAnime.svelte";
         <div class="flex justify-center gap-5">
             <CarouselBanner client:only="svelte" />
             <Popular client:only="svelte" />
+        </div>
+        <div class="flex justify-center gap-5">
+            <div>
+                <h1 class="my-8 text-white text-2xl font-comic-shanns">
+                    Season Upcoming
+                </h1>
+                <CardListAnime client:only="svelte" />
+            </div>
         </div>
     </section>
 </LayoutAnime>

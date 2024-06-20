@@ -1,23 +1,21 @@
 <script lang="ts">
     import { onMount, onDestroy } from "svelte";
-    import {
-        animeSeasonNow,
-        loading,
-        error,
-        fetchAnimeNow,
-    } from "../hooks/animeStore";
+    import { createAnimeStore } from "../hooks/animeStore";
+    const { loading, error, animeSeasonNow, fetchAnimeNow } =
+        createAnimeStore();
 
     let currentIndex = 0;
-    let intervalId: number | undefined
+    let intervalId: number | undefined;
     function next() {
         currentIndex = (currentIndex + 1) % $animeSeasonNow.length;
     }
     function prev() {
         currentIndex =
-            (currentIndex - 1 + $animeSeasonNow.length) % $animeSeasonNow.length;
+            (currentIndex - 1 + $animeSeasonNow.length) %
+            $animeSeasonNow.length;
     }
     onMount(() => {
-        fetchAnimeNow();
+        fetchAnimeNow(10);
         intervalId = setInterval(next, 2000);
     });
     onDestroy(() => {
@@ -46,18 +44,26 @@
                 </h1>
                 <div class="text-white text-md flex gap-2">
                     <h2>{$animeSeasonNow[currentIndex].type}</h2>
-                     ·
-                     <h2>{$animeSeasonNow[currentIndex].status}</h2>
-                     ·
-                    <h2>{$animeSeasonNow[currentIndex].season}-{$animeSeasonNow[currentIndex].year}</h2>
-                     ·
+                    ·
+                    <h2>{$animeSeasonNow[currentIndex].status}</h2>
+                    ·
+                    <h2>
+                        {$animeSeasonNow[currentIndex].season}-{$animeSeasonNow[
+                            currentIndex
+                        ].year}
+                    </h2>
+                    ·
                     <h2>★ {$animeSeasonNow[currentIndex].score}</h2>
-                     ·
+                    ·
                     <h2>{$animeSeasonNow[currentIndex].episodes} eps</h2>
                 </div>
                 <div class="text-white text-md flex gap-2 my-2">
                     {#each $animeSeasonNow[currentIndex].genres as genre}
-                        <div class="bg-primary px-3 rounded-md text-sm text-black font-semibold shadow">{genre.name}</div>
+                        <div
+                            class="bg-primary px-3 rounded-md text-sm text-black font-semibold shadow"
+                        >
+                            {genre.name}
+                        </div>
                     {/each}
                 </div>
             </div>
