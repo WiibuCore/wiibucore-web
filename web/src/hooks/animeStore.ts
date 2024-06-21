@@ -23,8 +23,10 @@ export const fetchAnimeTop = async (countSlice?: number) => {
 };
 
 interface Anime {
-    mal_id: number;
-    title: string;
+    mal_id: number
+    name: string
+    count: number
+    title: string
     type: string
     status: string
     season: string
@@ -36,10 +38,10 @@ interface Anime {
             name: string
         }
     ]
-    synopsis: string;
+    synopsis: string
     images: {
         jpg: {
-            large_image_url: string;
+            large_image_url: string
         };
     };
     trailer: {
@@ -52,6 +54,7 @@ interface Anime {
 export const createAnimeStore = () => {
     const animeSeasonNow = writable<Anime[]>([]);
     const animeSeasonUpcoming = writable<Anime[]>([]);
+    const animeGenres = writable<Anime[]>([]);
     const loading = writable(true);
     const error = writable<string | null>(null);
 
@@ -113,5 +116,33 @@ export const createAnimeStore = () => {
         }
     };
 
-    return { animeSeasonNow, animeSeasonUpcoming, loading, error, fetchAnimeNow, fetchAnimeUpcoming };
+    const fetchAnimeGenres = async (countSlice?: number, retries = 5, backoff = 1000) => {
+        loading.set(true);
+        error.set(null);
+        for (let i = 0; i < retries; i++) {
+            try {
+                const response = await axiosInstance.get(`/genres/anime`);
+                const data = response.data.data;
+                if (countSlice !== undefined && countSlice > 0) {
+                    animeGenres.set(data.slice(0, countSlice));
+                } else {
+                    animeGenres.set(data);
+                }
+            } catch (err: any) {
+                if (i === retries - 1) {
+                    error.set((err as Error).message);
+                } else if (err.response && err.response.status === 429) {
+                    await new Promise(resolve => setTimeout(resolve, backoff * (2 ** i)));
+                    continue;
+                } else {
+                    error.set((err as Error).message);
+                    break;
+                }
+            } finally {
+                loading.set(false);
+            }
+        }
+    };
+
+    return { animeSeasonNow, animeSeasonUpcoming, animeGenres, loading, error, fetchAnimeNow, fetchAnimeUpcoming, fetchAnimeGenres };
 };
