@@ -1,6 +1,9 @@
 <script lang="ts">
     import { onMount } from "svelte";
     import { createAnimeStore } from "../hooks/animeStore";
+
+    import CardAnime from "./CardAnime.svelte";
+
     const { loading, error, animeSeasonUpcoming, fetchAnimeUpcoming } =
         createAnimeStore();
     console.log({ animeSeasonUpcoming });
@@ -17,20 +20,11 @@
         <p>api call error</p>
     {:else}
         {#each $animeSeasonUpcoming as item}
-            <div
-                class="w-[150px] h-[280px] rounded-xl overflow-hidden shadow-lg bg-gray-800"
-            >
-                <img
-                    class="w-full h-[200px] object-cover"
-                    src={item.images.jpg.large_image_url}
-                    alt={item.title}
-                />
-                <div class="px-2 py-2">
-                    <div class="font-bold text-xs text-white mb-2">
-                        {item.title}
-                    </div>
-                </div>
-            </div>
+            <CardAnime
+                image={item.images.jpg.large_image_url}
+                title={item.title}
+                maxLength={20}
+            />
         {/each}
     {/if}
 </div>
