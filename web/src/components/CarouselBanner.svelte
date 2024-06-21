@@ -1,23 +1,32 @@
 <script lang="ts">
     import { onMount, onDestroy } from "svelte";
     import { createAnimeStore } from "../hooks/animeStore";
+
     const { loading, error, animeSeasonNow, fetchAnimeNow } =
         createAnimeStore();
 
     let currentIndex = 0;
     let intervalId: number | undefined;
+
     function next() {
-        currentIndex = (currentIndex + 1) % $animeSeasonNow.length;
+        if ($animeSeasonNow && $animeSeasonNow.length > 0) {
+            currentIndex = (currentIndex + 1) % $animeSeasonNow.length;
+        }
     }
+
     function prev() {
-        currentIndex =
-            (currentIndex - 1 + $animeSeasonNow.length) %
-            $animeSeasonNow.length;
+        if ($animeSeasonNow && $animeSeasonNow.length > 0) {
+            currentIndex =
+                (currentIndex - 1 + $animeSeasonNow.length) %
+                $animeSeasonNow.length;
+        }
     }
+
     onMount(() => {
         fetchAnimeNow(10);
         intervalId = setInterval(next, 2000);
     });
+
     onDestroy(() => {
         clearInterval(intervalId);
     });
@@ -27,8 +36,8 @@
     {#if $loading}
         <p>Loading...</p>
     {:else if $error}
-        <p>error call api...</p>
-    {:else}
+        <p>Error calling API...</p>
+    {:else if $animeSeasonNow && $animeSeasonNow.length > 0}
         <div class="overflow-hidden relative">
             <img
                 class="w-full h-[450px] object-cover object-center rounded-xl"
