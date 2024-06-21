@@ -1,6 +1,7 @@
 ---
 import LayoutAnime from "@/src/layouts/LayoutAnime.astro";
 import SeasonUpcoming from "@/src/components/SeasonUpcoming.svelte";
+import SeasonNow from "@/src/components/SeasonNow.svelte";
 import CarouselBanner from "@/src/components/CarouselBanner.svelte";
 import Popular from "@/src/components/PopulerAnime.svelte";
 ---
@@ -17,6 +18,10 @@ import Popular from "@/src/components/PopulerAnime.svelte";
                     Season Upcoming
                 </h1>
                 <SeasonUpcoming client:only="svelte" />
+                <h1 class="my-8 text-white text-2xl font-comic-shanns">
+                    Season Now
+                </h1>
+                <SeasonNow client:only="svelte" />
             </div>
         </div>
     </section>

@@ -55,39 +55,61 @@ export const createAnimeStore = () => {
     const loading = writable(true);
     const error = writable<string | null>(null);
 
-    const fetchAnimeNow = async (countSlice?: number) => {
+    const fetchAnimeNow = async (countSlice?: number, retries = 5, backoff = 1000) => {
         loading.set(true);
         error.set(null);
-        try {
-            const response = await axiosInstance.get(`/seasons/now`);
-            const data = response.data.data;
-            if (countSlice !== undefined && countSlice > 0) {
-                animeSeasonNow.set(data.slice(0, countSlice));
-            } else {
-                animeSeasonNow.set(data);
+
+        for (let i = 0; i < retries; i++) {
+            try {
+                const response = await axiosInstance.get(`/seasons/now`);
+                const data = response.data.data;
+                if (countSlice !== undefined && countSlice > 0) {
+                    animeSeasonNow.set(data.slice(0, countSlice));
+                } else {
+                    animeSeasonNow.set(data);
+                }
+                return;
+            } catch (err: any) {
+                if (i === retries - 1) {
+                    error.set((err as Error).message);
+                } else if (err.response && err.response.status === 429) {
+                    await new Promise(resolve => setTimeout(resolve, backoff * (2 ** i)));
+                    continue;
+                } else {
+                    error.set((err as Error).message);
+                    break;
+                }
+            } finally {
+                loading.set(false);
             }
-        } catch (err) {
-            error.set((err as Error).message);
-        } finally {
-            loading.set(false);
         }
     };
 
-    const fetchAnimeUpcoming = async (countSlice?: number) => {
+    const fetchAnimeUpcoming = async (countSlice?: number, retries = 5, backoff = 1000) => {
         loading.set(true);
         error.set(null);
-        try {
-            const response = await axiosInstance.get(`/seasons/upcoming`);
-            const data = response.data.data;
-            if (countSlice !== undefined && countSlice > 0) {
-                animeSeasonUpcoming.set(data.slice(0, countSlice));
-            } else {
-                animeSeasonUpcoming.set(data);
+        for (let i = 0; i < retries; i++) {
+            try {
+                const response = await axiosInstance.get(`/seasons/upcoming`);
+                const data = response.data.data;
+                if (countSlice !== undefined && countSlice > 0) {
+                    animeSeasonUpcoming.set(data.slice(0, countSlice));
+                } else {
+                    animeSeasonUpcoming.set(data);
+                }
+            } catch (err: any) {
+                if (i === retries - 1) {
+                    error.set((err as Error).message);
+                } else if (err.response && err.response.status === 429) {
+                    await new Promise(resolve => setTimeout(resolve, backoff * (2 ** i)));
+                    continue;
+                } else {
+                    error.set((err as Error).message);
+                    break;
+                }
+            } finally {
+                loading.set(false);
             }
-        } catch (err) {
-            error.set((err as Error).message);
-        } finally {
-            loading.set(false);
         }
     };
 
