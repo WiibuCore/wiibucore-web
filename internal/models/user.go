@@ -13,3 +13,8 @@ type Register struct {
 	Password        string `json:"password"`
 	PasswordConfirm string `json:"password_confirm"`
 }
+
+type Login struct {
+	Username string `json:"username"`
+	Password string `json:"password"`
+}
