@@ -3,6 +3,7 @@
     import { createAnimeStore } from "../hooks/animeStore";
 
     import CardAnime from "./CardAnime.svelte";
+    import Loading from "./Loading.svelte";
 
     const { loading, error, animeSeasonNow, fetchAnimeNow } =
         createAnimeStore();
@@ -15,7 +16,7 @@
 
 <div class="grid grid-cols-5 gap-2">
     {#if $loading}
-        <p>Loading...</p>
+        <Loading />
     {:else if $error}
         <p>api call error</p>
     {:else}

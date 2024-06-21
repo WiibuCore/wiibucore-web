@@ -1,6 +1,7 @@
 <script lang="ts">
     import { onMount, onDestroy } from "svelte";
     import { createAnimeStore } from "../hooks/animeStore";
+    import Loading from "./Loading.svelte";
 
     const { loading, error, animeSeasonNow, fetchAnimeNow } =
         createAnimeStore();
@@ -34,7 +35,7 @@
 
 <div class="relative w-full max-w-4xl">
     {#if $loading}
-        <p>Loading...</p>
+        <Loading />
     {:else if $error}
         <p>Error calling API...</p>
     {:else if $animeSeasonNow && $animeSeasonNow.length > 0}

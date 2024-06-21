@@ -1,13 +1,13 @@
 <script lang="ts">
     import { onMount } from "svelte";
     import { createAnimeStore } from "../hooks/animeStore";
+    import Loading from "./Loading.svelte";
 
-    const { loading, error, animePopuler, fetchAnimeTop } =
-        createAnimeStore();
+    const { loading, error, animePopuler, fetchAnimeTop } = createAnimeStore();
 
     onMount(() => {
         fetchAnimeTop(4);
-    });  
+    });
 </script>
 
 <div class="text-white px-5">
@@ -20,7 +20,7 @@
         </p>
     </div>
     {#if $loading}
-        <p>Loading...</p>
+        <Loading />
     {:else if $error}
         <p>api call error</p>
     {:else}
