@@ -1,21 +1,13 @@
 <script lang="ts">
     import { onMount } from "svelte";
-    import {
-        animePopuler,
-        loading,
-        error,
-        fetchAnimeTop,
-    } from "../hooks/animeStore";
+    import { createAnimeStore } from "../hooks/animeStore";
 
-    let popularAnime: any[] = [];
-    animePopuler.subscribe((value: any) => {
-        popularAnime = value;
-    });
+    const { loading, error, animePopuler, fetchAnimeTop } =
+        createAnimeStore();
 
     onMount(() => {
         fetchAnimeTop(4);
-    });
-    
+    });  
 </script>
 
 <div class="text-white px-5">
@@ -33,7 +25,7 @@
         <p>api call error</p>
     {:else}
         <ul class="pt-4">
-            {#each popularAnime as anime}
+            {#each $animePopuler as anime}
                 <li class="relative overflow-hidden rounded-xl mb-3">
                     <img
                         class="w-full h-[90px] object-cover object-center rounded-xl"

@@ -1,27 +1,6 @@
 import { writable } from "svelte/store";
 import axiosInstance from "../utils/axios";
 
-export const animePopuler: any = writable([]);
-export const animeSeasonNow: any = writable([]);
-export const loading = writable(true);
-export const error = writable<string | null>(null);
-
-export const fetchAnimeTop = async (countSlice?: number) => {
-    try {
-        const response = await axiosInstance.get(`/top/anime`);
-        const data = response.data.data
-        if (countSlice !== undefined && countSlice > 0) {
-            animePopuler.set(data.slice(0, countSlice));
-        } else {
-            animePopuler.set(data)
-        }
-        loading.set(false);
-    } catch (err) {
-        error.set((err as Error).message);
-        loading.set(false);
-    }
-};
-
 interface Anime {
     mal_id: number
     name: string
@@ -52,97 +31,93 @@ interface Anime {
 }
 
 export const createAnimeStore = () => {
+    const animePopuler: any = writable([]);
     const animeSeasonNow = writable<Anime[]>([]);
     const animeSeasonUpcoming = writable<Anime[]>([]);
     const animeGenres = writable<Anime[]>([]);
     const loading = writable(true);
     const error = writable<string | null>(null);
 
-    const fetchAnimeNow = async (countSlice?: number, retries = 5, backoff = 1000) => {
+    const fetchWithRateLimit = async (fetchFunction: () => Promise<any>, delay = 2000) => {
+        await new Promise(resolve => setTimeout(resolve, delay));
+        return fetchFunction();
+    };
+
+    const fetchAnimeTop = async (countSlice?: number) => {
         loading.set(true);
         error.set(null);
 
-        for (let i = 0; i < retries; i++) {
-            try {
-                const response = await axiosInstance.get(`/seasons/now`);
-                const data = response.data.data;
-                if (countSlice !== undefined && countSlice > 0) {
-                    animeSeasonNow.set(data.slice(0, countSlice));
-                } else {
-                    animeSeasonNow.set(data);
-                }
-                return;
-            } catch (err: any) {
-                if (i === retries - 1) {
-                    error.set((err as Error).message);
-                } else if (err.response && err.response.status === 429) {
-                    await new Promise(resolve => setTimeout(resolve, backoff * (2 ** i)));
-                    continue;
-                } else {
-                    error.set((err as Error).message);
-                    break;
-                }
-            } finally {
-                loading.set(false);
+        try {
+            const response = await fetchWithRateLimit(() => axiosInstance.get(`/top/anime`));
+            const data = response.data.data
+            if (countSlice !== undefined && countSlice > 0) {
+                animePopuler.set(data.slice(0, countSlice));
+            } else {
+                animePopuler.set(data)
             }
+        } catch (err: any) {
+            error.set((err as Error).message);
+        } finally {
+            loading.set(false);
         }
     };
 
-    const fetchAnimeUpcoming = async (countSlice?: number, retries = 5, backoff = 1000) => {
+    const fetchAnimeNow = async (countSlice?: number) => {
         loading.set(true);
         error.set(null);
-        for (let i = 0; i < retries; i++) {
-            try {
-                const response = await axiosInstance.get(`/seasons/upcoming`);
-                const data = response.data.data;
-                if (countSlice !== undefined && countSlice > 0) {
-                    animeSeasonUpcoming.set(data.slice(0, countSlice));
-                } else {
-                    animeSeasonUpcoming.set(data);
-                }
-            } catch (err: any) {
-                if (i === retries - 1) {
-                    error.set((err as Error).message);
-                } else if (err.response && err.response.status === 429) {
-                    await new Promise(resolve => setTimeout(resolve, backoff * (2 ** i)));
-                    continue;
-                } else {
-                    error.set((err as Error).message);
-                    break;
-                }
-            } finally {
-                loading.set(false);
+
+        try {
+            const response = await fetchWithRateLimit(() => axiosInstance.get(`/seasons/now`));
+            const data = response.data.data;
+            if (countSlice !== undefined && countSlice > 0) {
+                animeSeasonNow.set(data.slice(0, countSlice));
+            } else {
+                animeSeasonNow.set(data);
             }
+            return;
+        } catch (err: any) {
+            error.set((err as Error).message);
+        } finally {
+            loading.set(false);
         }
+
     };
 
-    const fetchAnimeGenres = async (countSlice?: number, retries = 5, backoff = 1000) => {
+    const fetchAnimeUpcoming = async (countSlice?: number) => {
         loading.set(true);
         error.set(null);
-        for (let i = 0; i < retries; i++) {
-            try {
-                const response = await axiosInstance.get(`/genres/anime`);
-                const data = response.data.data;
-                if (countSlice !== undefined && countSlice > 0) {
-                    animeGenres.set(data.slice(0, countSlice));
-                } else {
-                    animeGenres.set(data);
-                }
-            } catch (err: any) {
-                if (i === retries - 1) {
-                    error.set((err as Error).message);
-                } else if (err.response && err.response.status === 429) {
-                    await new Promise(resolve => setTimeout(resolve, backoff * (2 ** i)));
-                    continue;
-                } else {
-                    error.set((err as Error).message);
-                    break;
-                }
-            } finally {
-                loading.set(false);
+        try {
+            const response = await fetchWithRateLimit(() => axiosInstance.get(`/seasons/upcoming`));
+            const data = response.data.data;
+            if (countSlice !== undefined && countSlice > 0) {
+                animeSeasonUpcoming.set(data.slice(0, countSlice));
+            } else {
+                animeSeasonUpcoming.set(data);
             }
+        } catch (err: any) {
+            error.set((err as Error).message);
+        } finally {
+            loading.set(false);
         }
     };
 
-    return { animeSeasonNow, animeSeasonUpcoming, animeGenres, loading, error, fetchAnimeNow, fetchAnimeUpcoming, fetchAnimeGenres };
+    const fetchAnimeGenres = async (countSlice?: number) => {
+        loading.set(true);
+        error.set(null);
+        try {
+            const response = await fetchWithRateLimit(() => axiosInstance.get(`/genres/anime`));
+            const data = response.data.data;
+            if (countSlice !== undefined && countSlice > 0) {
+                animeGenres.set(data.slice(0, countSlice));
+            } else {
+                animeGenres.set(data);
+            }
+        } catch (err: any) {
+            error.set((err as Error).message);
+        } finally {
+            loading.set(false);
+        }
+    };
+
+    return { animePopuler, animeSeasonNow, animeSeasonUpcoming, animeGenres, loading, error, fetchAnimeNow, fetchAnimeUpcoming, fetchAnimeGenres, fetchAnimeTop };
 };
